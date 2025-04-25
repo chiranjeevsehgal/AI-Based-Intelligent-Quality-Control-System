@@ -2,7 +2,8 @@ import {
   Menu,
   FileText,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  OctagonAlert
 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 
@@ -14,8 +15,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, currentPage }) => {
   
   // Main sidebar items
   const sidebarItems = [
-    { name: "Health Check", icon: <FileText className="h-5 w-5" />, path: "/health" },
-    { name: "Gemini Upload (V1)", icon: <FileText className="h-5 w-5" />, path: "/" },
+    { name: "Health Checker", icon: <OctagonAlert className="h-5 w-5" />, path: "/" },
+    { name: "Gemini Upload (V1)", icon: <FileText className="h-5 w-5" />, path: "/gemini" },
     { name: "Ollama Upload (V2)", icon: <FileText className="h-5 w-5" />, path: "/ollama" },
     { name: "Cloud Processing (V3)", icon: <FileText className="h-5 w-5" />, path: "/cloudpipeline" }
   ]
