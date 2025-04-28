@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from "react";
-import { UploadCloud, FileImage, Menu, Info, X } from "lucide-react";
+import { UploadCloud, FileImage, Menu, Info, X, BookOpen } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 
 const GeminiDefectChecker = () => {
@@ -55,7 +55,9 @@ const GeminiDefectChecker = () => {
     }
   };
 
-
+  const openDocumentation = () => {
+    window.open("https://volcano-lift-3c1.notion.site/V1-Gemini-Upload-1e2ef84556bb80f783b1e000dc9658a9", "_blank");
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -64,13 +66,24 @@ const GeminiDefectChecker = () => {
       <div className={`flex-1 transition-all duration-300 ease-in-out ${sidebarOpen ? "md:ml-64" : "md:ml-20"}`}>
         <div className="p-6">
           <div className="mb-6">
-            <div className="flex flex-row mb-2">
-              {!sidebarOpen && (
-                <button onClick={() => setSidebarOpen(true)} className="mr-4 text-gray-500 hover:text-gray-700">
-                  <Menu className="h-6 w-6" />
-                </button>
-              )}
-              <h1 className="text-2xl font-bold text-gray-800">Defect Analyzer - Gemini</h1>
+            <div className="flex justify-between items-center">
+              <div className="flex flex-row">
+                {!sidebarOpen && (
+                  <button onClick={() => setSidebarOpen(true)} className="mr-4 text-gray-500 hover:text-gray-700">
+                    <Menu className="h-6 w-6" />
+                  </button>
+                )}
+                <h1 className="text-2xl font-bold text-gray-800">Defect Analyzer - Gemini</h1>
+              </div>
+              
+              {/* Documentation Button */}
+              <button
+                onClick={openDocumentation}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors duration-200"
+              >
+                <BookOpen className="h-5 w-5" />
+                <span className="font-medium">Docs</span>
+              </button>
             </div>
           </div>
           {/* Informative Note Box */}

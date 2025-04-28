@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { FileImage, Check, X, Loader2, ChevronRight, ExternalLink, RefreshCw, AlertCircle, Menu, Info } from "lucide-react";
+import { FileImage, Check, X, Loader2, ChevronRight, ExternalLink, RefreshCw, AlertCircle, Menu, Info, BookOpen  } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import ImageDetailsModal from "../components/ImageDetailsModal";
 
@@ -49,9 +49,9 @@ const CloudDefectCheckerPipeline = () => {
 
     // WebSocket connection setup
     useEffect(() => {
-        // Backend url, where Web socket is initialized
+        // Backend url, where Web socket is initialized, a deployed url, because for the google appscript cloud setup, it expects a deployed backend
         const socket = new WebSocket("wss://intelligent-quality-control-system-pilot.onrender.com/api/ws");
-
+    
         socket.onopen = () => {
             console.log("WebSocket connected");
             setConnectionStatus("connected");
@@ -301,6 +301,11 @@ const CloudDefectCheckerPipeline = () => {
 
     };
 
+    const openDocumentation = () => {
+        window.open("https://volcano-lift-3c1.notion.site/V3-Cloud-Processing-1e2ef84556bb8050b8e0fe67688b3dff", "_blank");
+    };
+    
+
 
     return (
         <div className="flex flex-col md:flex-row h-screen bg-gray-50">
@@ -328,13 +333,24 @@ const CloudDefectCheckerPipeline = () => {
                         )}
                         <div className="flex justify-between items-center w-full">
                             <h1 className="text-2xl font-bold text-gray-800">Defect Analyzer - Cloud</h1>
-                            <button
-                                onClick={resetAllStates}
-                                className="flex items-center px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                            >
-                                <RefreshCw className="h-5 w-5 mr-2" />
-                                Reset All
-                            </button>
+                            <div className="flex space-x-3">
+                                {/* Documentation Button */}
+                                <button
+                                    onClick={openDocumentation}
+                                    className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                                >
+                                    <BookOpen className="h-5 w-5 mr-2" />
+                                    Docs
+                                </button>
+                                {/* Reset Button */}
+                                <button
+                                    onClick={resetAllStates}
+                                    className="flex items-center px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                                >
+                                    <RefreshCw className="h-5 w-5 mr-2" />
+                                    Reset All
+                                </button>
+                            </div>
                         </div>
                     </div>
                     {/* Informative Note Box */}

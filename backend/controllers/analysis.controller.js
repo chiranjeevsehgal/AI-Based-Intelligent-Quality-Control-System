@@ -67,32 +67,58 @@ const analyzeImageFromCloudPipeline = async (req, res) => {
 const analyzeImageFromEdgePipeline = async (req, res) => {
   // For the Edge Implementation using Gemini (Edge Pipeline using Gemini)
   // Works for the image data being received from the kafka (V5)
-  try {
-    const { filePath } = req.body;
+  
+  // Support both direct function calls and API requests
+  let filePath;
+  let isDirectCall = false;
+  
+  // Check if this is a direct function call or an API request
+  if (typeof req === 'string') {
+    filePath = req;
+    isDirectCall = true;
+  } else {
+    filePath = req.body.filePath;
+  }
 
+  try {
     if (!filePath || !fs.existsSync(filePath)) {
-      return res.status(400).json({ success: false, error: "Invalid or missing file path" });
+      const error = "Invalid or missing file path";
+      if (isDirectCall) {
+        throw new Error(error);
+      }
+      return res.status(400).json({ success: false, error });
     }
 
     const fileExt = path.extname(filePath).toLowerCase();
     if (!['.jpg', '.jpeg', '.png', '.webp'].includes(fileExt)) {
-      return res.status(400).json({ success: false, error: "Invalid file type" });
+      const error = "Invalid file type";
+      if (isDirectCall) {
+        throw new Error(error);
+      }
+      return res.status(400).json({ success: false, error });
     }
 
     // Converts image to Base64
     const fileBuffer = fs.readFileSync(filePath);
     const base64Data = `data:image/jpeg;base64,${fileBuffer.toString('base64')}`;
     const result = await analyzeImageFromEdgePipelineService(base64Data);
-    const wss = req.app.get("wss");
-
-    // Broadcast result to all connected WebSocket clients
-    if (wss) {
-      broadcastToClients(wss, { success: true, result });
+    
+    // Broadcast result to all connected WebSocket clients if this is an API request
+    if (!isDirectCall) {
+      const wss = req.app.get("wss");
+      if (wss) {
+        broadcastToClients(wss, { success: true, result });
+      }
+      res.json({ success: true, result });
     }
-
-    res.json({ success: true, result });
+    
+    // Return the result if this is a direct function call
+    return result;
   } catch (error) {
     console.error(`Processing error: ${error.message}`);
+    if (isDirectCall) {
+      throw error;
+    }
     res.status(500).json({ success: false, error: "Image processing failed" });
   }
 };
@@ -100,32 +126,56 @@ const analyzeImageFromEdgePipeline = async (req, res) => {
 const analyzeImageFromEdgePipeline_Custom = async (req, res) => {
   // For the Edge Implementation using Custom Model (Edge Pipeline using Custom Model)
   // Works for the image data being received from the kafka (V6)
-  try {
-    const { filePath } = req.body;
+  let filePath;
+  let isDirectCall = false;
+  
+  // Check if this is a direct function call or an API request
+  if (typeof req === 'string') {
+    filePath = req;
+    isDirectCall = true;
+  } else {
+    filePath = req.body.filePath;
+  }
 
+  try {
     if (!filePath || !fs.existsSync(filePath)) {
-      return res.status(400).json({ success: false, error: "Invalid or missing file path" });
+      const error = "Invalid or missing file path";
+      if (isDirectCall) {
+        throw new Error(error);
+      }
+      return res.status(400).json({ success: false, error });
     }
 
     const fileExt = path.extname(filePath).toLowerCase();
     if (!['.jpg', '.jpeg', '.png', '.webp'].includes(fileExt)) {
-      return res.status(400).json({ success: false, error: "Invalid file type" });
+      const error = "Invalid file type";
+      if (isDirectCall) {
+        throw new Error(error);
+      }
+      return res.status(400).json({ success: false, error });
     }
 
     // Converts image to Base64
     const fileBuffer = fs.readFileSync(filePath);
     const base64Data = `data:image/jpeg;base64,${fileBuffer.toString('base64')}`;
     const result = await analyzeImageFromEdgePipelineService_Custom(base64Data);
-    const wss = req.app.get("wss");
-
-    // Broadcast result to all connected WebSocket clients
-    if (wss) {
-      broadcastToClients(wss, { success: true, result });
+    
+    // Broadcast result to all connected WebSocket clients if this is an API request
+    if (!isDirectCall) {
+      const wss = req.app.get("wss");
+      if (wss) {
+        broadcastToClients(wss, { success: true, result });
+      }
+      res.json({ success: true, result });
     }
-
-    res.json({ success: true, result });
+    
+    // Return the result if this is a direct function call
+    return { success: true, result };
   } catch (error) {
     console.error(`Processing error: ${error.message}`);
+    if (isDirectCall) {
+      throw error;
+    }
     res.status(500).json({ success: false, error: "Image processing failed" });
   }
 };

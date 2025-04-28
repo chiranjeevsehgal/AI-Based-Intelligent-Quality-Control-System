@@ -70,6 +70,7 @@ cd Intelligent-Quality-Control-System
     
     #Frontend: Create another .env file inside frontend/ and configure necessary environment variables
     VITE_API_URL = http://localhost:5001  (Assuming, you are using the same port)
+    VITE_WEB_SOCKET_URL=ws://localhost:5001/api/ws
     
 
 ## Build & Start the Services
@@ -77,6 +78,6 @@ cd Intelligent-Quality-Control-System
     docker-compose up
 
 ## Monitor the logs
-- The frontend takes ~10–15 seconds to initialize.
+- The frontend takes ~5-10 seconds to initialize.
 - Assuming you have not modified the port, dashboard would be accessible at: http://localhost:5173/
 - You can monitor rest of the system's health, through the health checker on the dashboard.

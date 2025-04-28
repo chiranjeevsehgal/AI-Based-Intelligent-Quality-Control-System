@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { FileImage, Check, X, Loader2, ChevronRight, ExternalLink, RefreshCw, AlertCircle, Menu, Info, Maximize2 } from "lucide-react";
+import { FileImage, Check, X, Loader2, ChevronRight, ExternalLink, RefreshCw, AlertCircle, Menu, Info, Maximize2, BookOpen } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import EdgeImageDetailsModal_Custom from "../components/Edge_ImageDetailsModal_Custom";
 
@@ -85,7 +85,7 @@ const EdgeDefectCheckerPipeline_Custom = () => {
     // WebSocket connection setup
     useEffect(() => {
         // Backend url, where Web socket is initialized
-        const socket = new WebSocket("ws://localhost:5001/api/ws");
+        const socket = new WebSocket((`${import.meta.env.VITE_WEB_SOCKET_URL}`));
 
         socket.onopen = () => {
             console.log("WebSocket connected");
@@ -256,6 +256,10 @@ const EdgeDefectCheckerPipeline_Custom = () => {
         return acc;
     }, {});
 
+    const openDocumentation = () => {
+        window.open("https://volcano-lift-3c1.notion.site/V6-YoloV8-Pipeline-using-Airflow-Kafka-1e2ef84556bb80cc8417d6cd3d4e2e21", "_blank");
+    };
+
     return (
         <div className="flex flex-col md:flex-row h-screen bg-gray-50">
             <Sidebar
@@ -281,13 +285,24 @@ const EdgeDefectCheckerPipeline_Custom = () => {
                         )}
                         <div className="flex justify-between items-center w-full">
                             <h1 className="text-2xl font-bold text-gray-800">Defect Analyzer - Edge (Using Airflow + Kafka)</h1>
-                            <button
-                                onClick={resetAllStates}
-                                className="flex items-center px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                            >
-                                <RefreshCw className="h-5 w-5 mr-2" />
-                                Reset All
-                            </button>
+                            <div className="flex space-x-3">
+                                {/* Documentation Button */}
+                                <button
+                                    onClick={openDocumentation}
+                                    className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                                >
+                                    <BookOpen className="h-5 w-5 mr-2" />
+                                    Docs
+                                </button>
+                                {/* Reset Button */}
+                                <button
+                                    onClick={resetAllStates}
+                                    className="flex items-center px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                                >
+                                    <RefreshCw className="h-5 w-5 mr-2" />
+                                    Reset All
+                                </button>
+                            </div>
                         </div>
                     </div>
 

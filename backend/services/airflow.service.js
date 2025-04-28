@@ -3,6 +3,7 @@
 const axios = require('axios');
 const { broadcastToClients }  = require('../controllers/websocket.controller');
 const fs = require('fs');
+const { analyzeImageFromEdgePipeline, analyzeImageFromEdgePipeline_Custom } = require('../controllers/analysis.controller');
 const path = require('path');
 const app = require('../app');
 const config = require('../config');
@@ -15,12 +16,12 @@ async function handleFileChange(filePath) {
         broadcastToClients(wss, filePath)
         console.log("file path:\n"+filePath);
         
-        const response = await axios.post('http://localhost:5001/api/process-image', { filePath });
-
+        const response = await analyzeImageFromEdgePipeline(filePath);
+        
         broadcastResult({
             fileName: path.basename(filePath),
             filePath,
-            result: response.data.result,
+            result: response,
             timestamp: new Date().toISOString(),
         });
     } catch (error) {
@@ -36,26 +37,27 @@ async function handleFileChange_custom(filePath) {
     // For the Edge Implementation using Custom Model (Edge Pipeline using Custom Model)
     // Works for the image data being received from the kafka (V6)
     try {
-        broadcastResult_original({filePath})
-        const response = await axios.post('http://localhost:5001/api/process-image-custom', { filePath });
-        console.log("From airflow file service");
-        console.log(response.data.success);
+        broadcastResult_original({filePath});
+        
+        const response = await analyzeImageFromEdgePipeline_Custom(filePath);
+        
         broadcastResult({
             fileName: path.basename(filePath),
             filePath,
-            result: response.data.success,
-            defects:response.data.result.defects,
-            annotated:response.data.result.annotatedImage,
+            result: response.success,
+            defects: response.result.defects,
+            annotated: response.result.annotatedImage,
             timestamp: new Date().toISOString(),
         });
     } catch (error) {
-        console.error(`Error processing ${filePath}`);
+        console.error(`Error processing ${filePath}`, error);
         broadcastError({
             fileName: path.basename(filePath),
-            error: error.response?.data?.error || error.message,
+            error: error.message,
         });
     }
 }
+
 
 function broadcastResult(data) {
     // Helper function for the Edge Implementation to broadcast the response using Web Socket

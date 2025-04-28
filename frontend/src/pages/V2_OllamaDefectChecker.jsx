@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from "react";
-import { UploadCloud, FileImage, Menu, X, Info } from "lucide-react";
+import { UploadCloud, FileImage, Menu, X, Info, BookOpen } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 
 const OllamaDefectChecker = () => {
@@ -91,6 +91,10 @@ const OllamaDefectChecker = () => {
     );
   };
 
+  const openDocumentation = () => {
+    window.open("https://volcano-lift-3c1.notion.site/V2-Ollama-Upload-1e2ef84556bb800ba167d3f5dfc0461c", "_blank");
+  };
+
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-50">
       <Sidebar
@@ -106,16 +110,27 @@ const OllamaDefectChecker = () => {
       >
         <div className="max-w-8xl mx-auto">
 
-          <div className="mb-6 flex flex-row items-center">
-            {!sidebarOpen && (
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="mr-4 text-gray-500 hover:text-gray-700"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
-            )}
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Defect Analyzer - Ollama</h1>
+          <div className="mb-6 flex justify-between items-center">
+            <div className="flex flex-row items-center">
+              {!sidebarOpen && (
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="mr-4 text-gray-500 hover:text-gray-700"
+                >
+                  <Menu className="h-6 w-6" />
+                </button>
+              )}
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Defect Analyzer - Ollama</h1>
+            </div>
+            
+            {/* Documentation Button */}
+            <button
+              onClick={openDocumentation}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-md transition-colors duration-200"
+            >
+              <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base font-medium">Docs</span>
+            </button>
           </div>
 
           {/* Informative Note Box */}

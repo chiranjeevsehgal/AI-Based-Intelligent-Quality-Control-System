@@ -7,10 +7,12 @@ const config = require('../config');
 const WebSocket = require("ws");
 const axios = require('axios');
 const { broadcastToClients }  = require('../controllers/websocket.controller');
+const { analyzeImageFromEdgePipeline }  = require('../controllers/analysis.controller');
 let watcher;
 
 function initFileWatcher(wss) {
     // Using Node Library: Chokidar to monitor the files
+    console.log("InitFile watcher");
     
     // Create watch folder if it doesn't exist
     if (!fs.existsSync(config.WATCH_FOLDER)) {
@@ -20,6 +22,8 @@ function initFileWatcher(wss) {
     watcher = chokidar.watch(config.WATCH_FOLDER, {
         ignored: /(^|[\/\\])\../,
         persistent: true,
+        usePolling: true,          // Add this option
+        interval: 1000,   
         awaitWriteFinish: {
             stabilityThreshold: 2000,
             pollInterval: 100
@@ -36,18 +40,21 @@ function initFileWatcher(wss) {
 
 async function handleFileChange(filePath, wss) {
     // Helper function to process the image and broadcast the response
-    try {
-        console.log("From edge folder\n"+filePath);
+    try {        
+        console.log("In file change");
         
-        const response = await axios.post('http://localhost:5001/api/process-image', { filePath });
-
+        const response = await analyzeImageFromEdgePipeline(filePath);
+        console.log(response);
+        
         broadcastResult(wss, {
             fileName: path.basename(filePath),
             filePath,
-            result: response.data.result,
+            result: response,
             timestamp: new Date().toISOString(),
         });
     } catch (error) {
+        console.log(error);
+        
         console.error(`Error processing ${filePath}`);
         broadcastError(wss, {
             fileName: path.basename(filePath),
