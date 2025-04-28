@@ -60,18 +60,20 @@ cd Intelligent-Quality-Control-System
 ## Configuration
 **Environment Files**
     
-    #Backend: Create a .env file inside backend/ and configure necessary environment variables
-    GEMINI_API_KEY = <YOUR_GEMINI_API_KEY>
-    GEMINI_MODEL = gemini-1.5-pro-002
-    OLLAMA_BASE_URL = http://127.0.0.1:11434 or http://ollama:11434 (Depending upon local or docker implementation of ollama)
-    CUSTOM_MODEL_URL = https://suryanshbachchan.us-east-1.modelbit.com/v1/defect_detection_base64_to_base64/latest
-    PORT = 5001 (If changing, change in docker-compose file as well)
-    KAFKA_BROKER=kafka:9092
-    
-    #Frontend: Create another .env file inside frontend/ and configure necessary environment variables
-    VITE_API_URL = http://localhost:5001  (Assuming, you are using the same port)
-    VITE_WEB_SOCKET_URL=ws://localhost:5001/api/ws
-    
+**1. Backend:** Create a .env file inside backend/ and configure necessary environment variables
+```bash
+GEMINI_API_KEY=<YOUR_GEMINI_API_KEY>
+GEMINI_MODEL=gemini-1.5-pro-002
+OLLAMA_BASE_URL=http://127.0.0.1:11434 or http://ollama:11434 (Depending upon local or docker implementation of ollama)
+CUSTOM_MODEL_URL=https://suryanshbachchan.us-east-1.modelbit.com/v1/defect_detection_base64_to_base64/latest
+PORT=5001 (If changing, change in docker-compose file as well)
+KAFKA_BROKER=kafka:9092
+```
+**2. Frontend:** Create a .env file inside frontend/ and configure necessary environment variables
+```bash
+VITE_API_URL=http://localhost:5001  (Assuming, you are using the same port)
+VITE_WEB_SOCKET_URL=ws://localhost:5001/api/ws
+``` 
 
 ## Build & Start the Services
     docker-compose build
