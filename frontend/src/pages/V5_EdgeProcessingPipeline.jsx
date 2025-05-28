@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { FileImage, Check, X, Loader2, ChevronRight, ExternalLink, RefreshCw, AlertCircle, Menu, Info, BookOpen  } from "lucide-react";
+import { FileImage, Check, X, Loader2, ChevronRight, ExternalLink, RefreshCw, AlertCircle, Menu, Info, BookOpen } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import EdgeImageDetailsModal from "../components/Edge_ImageDetailsModal";
 
@@ -174,6 +174,7 @@ const EdgeDefectCheckerPipeline_Kafka = () => {
                 });
 
                 const analysisResult = await analysisResponse.json();
+                console.log(analysisResult);
                 const resultText = analysisResult.result || "Error";
 
                 setResult(resultText);
@@ -289,6 +290,182 @@ const EdgeDefectCheckerPipeline_Kafka = () => {
         window.open("https://volcano-lift-3c1.notion.site/V5-Gemini-Pipeline-using-Airflow-Kafka-1e2ef84556bb80bd963be0f03a344b79", "_blank");
     };
 
+    const formatStructuredResult = (text) => {
+        if (!text) return null;
+    
+        const formattedText = text.replace(/\\n/g, '\n');
+        
+        // Check if it's an invalid/out-of-scope message
+        const isInvalidScope = formattedText.toLowerCase().includes('does not align') || 
+                              formattedText.toLowerCase().includes('not align') ||
+                              formattedText.toLowerCase().includes('please provide');
+        
+        if (isInvalidScope) {
+            return (
+                <div className="space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    {/* Classification for Invalid */}
+                    <div className="pb-2 mb-2 font-semibold text-lg bg-gray-50 text-gray-800 border-b border-gray-300">
+                        Classification: Invalid/Out of Scope
+                    </div>
+                    
+                    {/* Message */}
+                    <div>
+                        <h4 className="font-semibold text-gray-700">
+                            Analysis:
+                        </h4>
+                        <div className="p-2 text-justify bg-gray-50">
+                            <p className="text-sm leading-relaxed text-gray-700">
+                                {formattedText.trim()}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+    
+        // Regular structured parsing for valid results
+        const sections = {};
+        let currentSection = 'general';
+        let currentContent = [];
+    
+        const lines = formattedText.split('\n').filter(line => line.trim() !== '');
+    
+        lines.forEach(line => {
+            const trimmedLine = line.trim();
+    
+            if (trimmedLine.toLowerCase().startsWith('classification:')) {
+                sections.classification = trimmedLine;
+            } else if (trimmedLine.toLowerCase().startsWith('analysis:')) {
+                currentSection = 'analysis';
+                currentContent = [trimmedLine.substring(9).trim()];
+            } else if (trimmedLine.toLowerCase().startsWith('detected issues:')) {
+                if (currentContent.length > 0) {
+                    sections[currentSection] = currentContent;
+                }
+                currentSection = 'detectedIssues';
+                currentContent = [];
+            } else {
+                currentContent.push(trimmedLine);
+            }
+        });
+    
+        // Add the last section
+        if (currentContent.length > 0) {
+            sections[currentSection] = currentContent;
+        }
+    
+        const isDefective = sections.classification?.toLowerCase().includes('defective') &&
+                           !sections.classification?.toLowerCase().includes('not defective');
+        const isNotDefective = sections.classification?.toLowerCase().includes('not defective');
+    
+        if (isDefective) {
+            // DEFECTIVE
+            return (
+                <div className="space-y-4 bg-red-50 p-4 rounded-lg border border-red-200">
+                    {/* Classification */}
+                    {sections.classification && (
+                        <div className="pb-2 mb-2 font-semibold text-lg bg-red-50 text-red-800 border-b border-red-300">
+                            {sections.classification}
+                        </div>
+                    )}
+    
+                    {/* Analysis */}
+                    {sections.analysis && (
+                        <div>
+                            <h4 className="font-semibold text-red-700">
+                                Analysis:
+                            </h4>
+                            <div className="p-2 border-b text-justify bg-red-50 border-red-300">
+                                {sections.analysis.map((line, index) => (
+                                    <p key={index} className="text-sm leading-relaxed mb-2 last:mb-0 text-red-700">
+                                        {line}
+                                    </p>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+    
+                    {/* Detected Issues */}
+                    {sections.detectedIssues && sections.detectedIssues.length > 0 && (
+                        <div>
+                            <h4 className="font-semibold text-red-700">Detected Issues:</h4>
+                            <div className="bg-red-50 p-2 text-justify">
+                                {sections.detectedIssues.map((issue, index) => (
+                                    <div key={index} className="flex mb-2 last:mb-0 items-center">
+                                        <span className="mr-2 text-red-500 font-bold">•</span>
+                                        <span className="text-red-700 text-sm">
+                                            {issue.startsWith('-') ? issue.substring(1).trim() : issue}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        } else if (isNotDefective) {
+            // NOT DEFECTIVE
+            return (
+                <div className="space-y-4 bg-green-50 p-4 rounded-lg border border-green-200">
+                    {/* Classification */}
+                    {sections.classification && (
+                        <div className="pb-2 mb-2 font-semibold text-lg bg-green-50 text-green-800 border-b border-green-300">
+                            {sections.classification}
+                        </div>
+                    )}
+    
+                    {/* Analysis */}
+                    {sections.analysis && (
+                        <div>
+                            <h4 className="font-semibold text-green-700">
+                                Analysis:
+                            </h4>
+                            <div className="p-2 text-justify bg-green-50">
+                                {sections.analysis.map((line, index) => (
+                                    <p key={index} className="text-sm leading-relaxed mb-2 last:mb-0 text-green-700">
+                                        {line}
+                                    </p>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+    
+                    {/* Detected Issues - Usually not present for not defective, but just in case */}
+                    {sections.detectedIssues && sections.detectedIssues.length > 0 && (
+                        <div>
+                            <h4 className="font-semibold text-green-700 mb-2">Additional Notes:</h4>
+                            <div className="bg-green-100 p-3 rounded-lg text-justify border border-green-300">
+                                {sections.detectedIssues.map((issue, index) => (
+                                    <div key={index} className="flex items-start mb-2 last:mb-0">
+                                        <span className="mr-2 text-green-500 font-bold">•</span>
+                                        <span className="text-green-700 text-sm">
+                                            {issue.startsWith('-') ? issue.substring(1).trim() : issue}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        } 
+    };
+
+    const AnalysisResultsSection = () => (
+        <div className="bg-white rounded-lg shadow p-4">
+            <h2 className="text-lg font-medium text-gray-800 mb-4">Current Analysis Results</h2>
+            {result ? (
+                <div>
+                    {formatStructuredResult(result)}
+                </div>
+            ) : (
+                <div className="flex flex-col items-center justify-center h-32 text-gray-500">
+                    <FileImage className="h-12 w-12 text-gray-300 mb-3" />
+                    <p className="text-center">Waiting for image analysis</p>
+                </div>
+            )}
+        </div>
+    );
 
     return (
         <div className="flex flex-col md:flex-row h-screen bg-gray-50">
@@ -408,26 +585,7 @@ const EdgeDefectCheckerPipeline_Kafka = () => {
                         </div>
 
                         {/* Analysis Results */}
-                        <div className="bg-white rounded-lg shadow p-4">
-                            <h2 className="text-lg font-medium text-gray-800 mb-4">Current Analysis Results</h2>
-                            {result ? (
-                                <div className={`p-4 rounded-lg 
-                                    ${result.toLowerCase().includes("defective") &&
-                                        !result.toLowerCase().includes("not defective") ||
-                                        result.toLowerCase().includes("does not align")
-                                        ? "bg-red-50 text-red-700"
-                                        : result.toLowerCase().includes("not defective")
-                                            ? "bg-green-50 text-green-700"
-                                            : "bg-gray-50 text-gray-700"}`}>
-                                    <p className="text-sm font-medium">{result}</p>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center h-32 text-gray-500">
-                                    <FileImage className="h-12 w-12 text-gray-300 mb-3" />
-                                    <p className="text-center">Waiting for image analysis</p>
-                                </div>
-                            )}
-                        </div>
+                        <AnalysisResultsSection />
                     </div>
                 </div>
 
