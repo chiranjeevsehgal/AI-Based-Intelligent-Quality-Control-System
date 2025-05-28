@@ -65,7 +65,7 @@ cd Intelligent-Quality-Control-System
 GEMINI_API_KEY=<YOUR_GEMINI_API_KEY>
 GEMINI_MODEL=gemini-1.5-pro-002
 OLLAMA_BASE_URL=http://127.0.0.1:11434 or http://ollama:11434 (Depending upon local or docker implementation of ollama)
-CUSTOM_MODEL_URL=https://suryanshbachchan.us-east-1.modelbit.com/v1/defect_detection_base64_to_base64/latest
+CUSTOM_MODEL_URL=https://chiranjeevsehgal-defect-detector.hf.space/
 PORT=5001 (If changing, change in docker-compose file as well)
 KAFKA_BROKER=kafka:9092
 ```

@@ -8,8 +8,6 @@ const GEMINI_MODEL = config.GEMINI_MODEL;
 
 const OLLAMA_URL = process.env.OLLAMA_BASE_URL
 
-const CUSTOM_URL = process.env.CUSTOM_MODEL_URL
-
 async function analyzeImageFromGeminiUploadService(imageBuffer, mimeType) {
   // For the File Upload Functionality (Gemini Single Image)
   // Works for the image data being received from upload module (V1)
